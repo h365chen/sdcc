@@ -8,7 +8,7 @@ def test_exist(stu_answer):
     assert stu_answer.exists()
 
 
-@pytest.mark.xfail(reason="not needed for this assessment")
+@pytest.mark.skip(reason="not needed for this assessment")
 @pytest.mark.dependency(
     name="test_content",
     depends=['test_exist'],
