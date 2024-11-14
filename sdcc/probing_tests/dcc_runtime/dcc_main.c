@@ -101,6 +101,15 @@ static void __dcc_signal_handler(int signum) {
   putenvd(signum_buffer); // less likely? to trigger another error than direct
                           // setenv
 
+  // Flush the stdout buffer and let pytest knows it
+  fflush(stdout);
+  // now pytest should attach lldb soon
+  int wait_lldb = 3;
+  for (int i = 0; i < wait_lldb; i++) {
+    printf("waiting lldb ... %d seconds\n", i);
+    sleep(1);
+  }
+
   // _explain_error();
 
   // not reached
