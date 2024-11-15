@@ -41,11 +41,17 @@ def test_link(stu_answer):
     # ^ they cause issues; move them out for now
     cmd = f"""
     clang
-    -Wall -Wno-unused -Wunused-variable -Wunused-value -Wno-unused-result -Wshadow
     -O0
     -g
+    -gdwarf-4
+    -Wall
+    -Wno-unused -Wunused-variable -Wunused-value
+    -Wno-unused-result -Wshadow -Wunused-comparison
+    -Wno-unused-parameter -Wno-return-type
+    -fno-omit-frame-pointer -fno-common
+    -funwind-tables -fno-optimize-sibling-calls
     -fcolor-diagnostics -fdiagnostics-color
-    -gdwarf-4 -Wunused-comparison -fno-omit-frame-pointer -fno-common -funwind-tables -fno-optimize-sibling-calls -Qunused-arguments -Wno-unused-parameter -Wno-return-type
+    -Qunused-arguments
     {stu_answer}
     -lm
     -o {exe}
