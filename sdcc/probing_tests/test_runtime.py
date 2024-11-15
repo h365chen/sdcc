@@ -1,22 +1,32 @@
 import subprocess
+import time
 
 import pytest
 
 gdict = {}
 
 
-@pytest.mark.order(0)
+@pytest.mark.skip(reason="It seems we don't need a wrapper code. We can just launch with `lldb ./a.out`")  # noqa
 def test_compile_wrapper():
     """Compile wrapper code to .o file to be linked later."""
     wrapper = 'probing_tests/dcc_runtime/dcc_main.c'
     obj = 'probing_tests/dcc_runtime/dcc_c_wrapper_source.o'
-    cmd = f"clang -c {wrapper} -o {obj} -gdwarf-4 -g -O3".split()
-    subprocess.run(
+    cmd = f"""
+    clang
+    -g
+    -O0
+    -gdwarf-4
+    -c {wrapper}
+    -o {obj}
+    """.split()
+    process = subprocess.run(
         cmd,
         input="",
         text=True,
         check=False,
     )
+    print(process.stdout)
+    # assert 0
 
 
 @pytest.mark.order(1)
@@ -24,7 +34,7 @@ def test_link(stu_answer):
     """Compile and link student's answer."""
     # temporary overwrite
     stu_answer = 'probing_tests/dcc_runtime/student.c'
-    obj = 'probing_tests/dcc_runtime/dcc_c_wrapper_source.o'
+    # obj = 'probing_tests/dcc_runtime/dcc_c_wrapper_source.o'
     exe = 'probing_tests/dcc_runtime/a.out'
 
     # -fsanitize=address -fsanitize=undefined
@@ -32,16 +42,10 @@ def test_link(stu_answer):
     cmd = f"""
     clang
     -Wall -Wno-unused -Wunused-variable -Wunused-value -Wno-unused-result -Wshadow
-    -Og
+    -O0
+    -g
     -fcolor-diagnostics -fdiagnostics-color
     -gdwarf-4 -Wunused-comparison -fno-omit-frame-pointer -fno-common -funwind-tables -fno-optimize-sibling-calls -Qunused-arguments -Wno-unused-parameter -Wno-return-type
-    -D_exit=__renamed__exit
-    -Dclose=__renamed_close
-    -Dexecvp=__renamed_execvp
-    -Dgetpid=__renamed_getpid
-    -Dmain=__real_main
-    -Dfileno=__wrap_fileno
-    {obj}
     {stu_answer}
     -lm
     -o {exe}
@@ -60,34 +64,38 @@ def test_segfault():
     """Check if there is a segment fault."""
     # Start the subprocess
     exe = 'probing_tests/dcc_runtime/a.out'
-    cmd = f"./{exe}".split()
-    process = subprocess.Popen(
-        cmd,
-        stdout=subprocess.PIPE,
-        text=True,
-    )
-    gdict["pid"] = process.pid
-    # Stream the output line by line
-    for line in process.stdout:
-        if "received signal" in line:
-            assert True
-            return
-    assert False
+    cmd = f"""
+    lldb
+    --
+    ./{exe}
+    """.split()
+    # TODO: what about using pytest's captures?
+    with subprocess.Popen(cmd,
+                          stdin=subprocess.PIPE,
+                          # stdout=subprocess.PIPE,
+                          stderr=subprocess.STDOUT,
+                          text=True,
+                          bufsize=1,
+                          universal_newlines=True
+                          ) as proc:
 
+        # LLDB commands with a precoded waiting time
+        # TODO: better specify the waiting time
+        lldb_cmds = [
+            ('run', 1),
+            ('frame variable', 0.2),
+            ('kill', 0.1),
+            ('quit', 0.1),
+        ]
+        for command, t in lldb_cmds:
+            proc.stdin.write(command + '\n')
+            proc.stdin.flush()
+            time.sleep(t)
+            # ^ note that proc.stdout.readline() is blocking
+            # so it cannot be used here
 
-@pytest.mark.order(3)
-def test_lldb():
-    """Attach LLDB and do inspection."""
-    pid = gdict["pid"]
-    cmd = f"lldb -p {pid}".split()
-    lldb_cmds = """
-thread backtrace
-kill
-    """.strip()
-    subprocess.run(
-        cmd,
-        input=lldb_cmds,
-        text=True,
-        check=False,
-    )
+        # capture stdout in pytest, so following code is not needed
+        # close stdin and fetch stdout
+        # stdout, _ = proc.communicate()
+        # print(stdout)
     assert False
