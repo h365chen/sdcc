@@ -3,8 +3,6 @@ import time
 
 import pytest
 
-gdict = {}
-
 
 @pytest.mark.skip(reason="It seems we don't need a wrapper code. We can just launch with `lldb ./a.out`")  # noqa
 def test_compile_wrapper():
@@ -29,53 +27,20 @@ def test_compile_wrapper():
     # assert 0
 
 
-@pytest.mark.order(1)
-def test_link(stu_answer):
-    """Compile and link student's answer."""
-    # temporary overwrite
-    stu_answer = 'probing_tests/dcc_runtime/student.c'
-    # obj = 'probing_tests/dcc_runtime/dcc_c_wrapper_source.o'
-    exe = 'probing_tests/dcc_runtime/a.out'
-
-    # -fsanitize=address -fsanitize=undefined
-    # ^ they cause issues; move them out for now
-    cmd = f"""
-    clang
-    -O0
-    -g
-    -gdwarf-4
-    -Wall
-    -Wno-unused -Wunused-variable -Wunused-value
-    -Wno-unused-result -Wshadow -Wunused-comparison
-    -Wno-unused-parameter -Wno-return-type
-    -fno-omit-frame-pointer -fno-common
-    -funwind-tables -fno-optimize-sibling-calls
-    -fcolor-diagnostics -fdiagnostics-color
-    -Qunused-arguments
-    {stu_answer}
-    -lm
-    -o {exe}
-    """.split()  # noqa
-    print(' '.join(cmd))
-    subprocess.run(
-        cmd,
-        input="",
-        text=True,
-        check=False,
-    )
-
-
-@pytest.mark.order(2)
-def test_segfault():
+@pytest.mark.dependency(
+    name="test_runtime",
+    depends=['test_compile'],
+    scope="session",
+)
+def test_it(artifacts, capfd):
     """Check if there is a segment fault."""
     # Start the subprocess
-    exe = 'probing_tests/dcc_runtime/a.out'
+    exe = artifacts / 'dcc' / 'a.out'
     cmd = f"""
     lldb
     --
     ./{exe}
     """.split()
-    # TODO: what about using pytest's captures?
     with subprocess.Popen(cmd,
                           stdin=subprocess.PIPE,
                           # stdout=subprocess.PIPE,
@@ -104,4 +69,9 @@ def test_segfault():
         # close stdin and fetch stdout
         # stdout, _ = proc.communicate()
         # print(stdout)
-    assert False
+
+    out, _ = capfd.readouterr()
+    if "exited with status = 0" not in out:
+        (artifacts / 'lldb_out.txt').write_text(out)
+        print(out)
+        assert False

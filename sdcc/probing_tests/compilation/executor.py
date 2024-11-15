@@ -1,49 +1,39 @@
 """Contain code to compile student's code."""
 
-import os
 import subprocess
-import sys
 
 
 def run(clang_version, stu_answer_content, stu_answer, artifacts):
     """Contain code to compile student's submission."""
-    os.environ["PATH"] = (
-        os.path.dirname(os.path.realpath(sys.argv[0]))
-        + ":/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:"
-        + os.environ.get("PATH", "")
-    )
-
     temp_dir = artifacts / 'dcc'
-    (temp_dir / "a.out").unlink(missing_ok=True)  # rm a.out
+    target = temp_dir / 'a.out'
+    target.unlink(missing_ok=True)  # rm a.out
     for f in temp_dir.glob("*.o"):  # rm *.o
         f.unlink(missing_ok=True)
     temp_dir.mkdir(exist_ok=True)
 
-    COMMON_COMPILER_ARGS = """
-        -Wall
-        -Wno-unused
-        -Wunused-variable
-        -Wunused-value
-        -Wno-unused-result
-        -Wshadow
-        """.split()
-
-    command = (
-        ["clang"]
-        + COMMON_COMPILER_ARGS
-        # + ["-fsanitize=address"]
-        + ["-o", str(temp_dir / "a.out")]
-        + [str(stu_answer)]
-        + ["-lm"]
-    )
-    print("compile command: ", " ".join(command))
+    cmd = f"""
+    clang
+    -O0
+    -g
+    -gdwarf-4
+    -Wall
+    -Wno-unused -Wunused-variable -Wunused-value
+    -Wno-unused-result -Wshadow -Wunused-comparison
+    -Wno-unused-parameter -Wno-return-type
+    -fno-omit-frame-pointer -fno-common
+    -funwind-tables -fno-optimize-sibling-calls
+    -fcolor-diagnostics -fdiagnostics-color
+    -Qunused-arguments
+    -o {target}
+    {stu_answer}
+    -lm
+    """.split()  # noqa
+    print("compile command: ", " ".join(cmd))
     process = subprocess.run(
-        command,
+        cmd,
         input="",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
         text=True,
-        errors="replace",
         check=False,
     )
     return process

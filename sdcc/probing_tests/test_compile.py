@@ -29,6 +29,7 @@ def test_clang_version_exists(clang_version):
 
 
 @pytest.mark.dependency(
+    name='test_compile',
     depends=['test_exist'],
     scope="session",
 )
@@ -42,7 +43,6 @@ def test_it(clang_version, stu_answer_content, stu_answer, artifacts):
         not process.stdout and process.returncode == 0
 
 
-@pytest.mark.order(after='test_compile')
 @pytest.mark.dependency(
     name="test_compile_flipped",
     depends=['test_exist'],

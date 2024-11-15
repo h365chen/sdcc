@@ -1,6 +1,6 @@
 """Contain necessary information for SocAssess to provide feedback.."""
 
-from . import general, compilation
+from . import general, compilation, runtime
 
 __all__ = [
     # required
@@ -16,10 +16,12 @@ __all__ = [
 selected = {
     "general": general.mappings,
     "compilation": compilation.mappings,
+    "runtime": runtime.mappings,
 }
 
 
 questions = {
     "general": "this is a general question",
     "compilation": "",
+    "runtime": "",
 }

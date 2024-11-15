@@ -36,7 +36,7 @@
 #define NO_SANITIZE
 #endif
 
-int main(int argc, char *argv[], char *envp[]) NO_SANITIZE;
+int main(int argc, char *argv[]) NO_SANITIZE;
 int __real_main(int argc, char *argv[]);
 
 // static void __dcc_start(void) __attribute__((constructor)) NO_SANITIZE;
@@ -60,14 +60,8 @@ static int __dcc_run_sanitizer1(int argc, char *argv[]);
 // should be prefaced with __dcc_ so it won't displayed in explanations
 //
 
-int main(int argc, char *argv[], char *envp[]) {
+int main(int argc, char *argv[]) {
   __dcc_start();
-  (void)envp; // avoid unused parameter warning
-  char *mypath = realpath(argv[0], NULL);
-  if (mypath) {
-    setenvd("DCC_BINARY", mypath);
-    free(mypath);
-  }
   return __dcc_run_sanitizer1(argc, argv);
 }
 
@@ -96,19 +90,15 @@ static void __dcc_signal_handler(int signum) {
   printf("received signal %d\n", signum);
   set_signals_default();
 
-  char signum_buffer[64];
-  snprintf(signum_buffer, sizeof signum_buffer, "DCC_SIGNAL=%d", (int)signum);
-  putenvd(signum_buffer); // less likely? to trigger another error than direct
-                          // setenv
-
   // Flush the stdout buffer and let pytest knows it
   fflush(stdout);
   // now pytest should attach lldb soon
-  int wait_lldb = 3;
-  for (int i = 0; i < wait_lldb; i++) {
-    printf("waiting lldb ... %d seconds\n", i);
-    sleep(1);
-  }
+  // int wait_lldb = 10;
+  // for (int i = 0; i < wait_lldb; i++) {
+  //   printf("waiting lldb ... %d seconds\n", i);
+  //   sleep(1);
+  // }
+  while (1) {}
 
   // _explain_error();
 
@@ -122,7 +112,7 @@ static void setenvd(const char *n, const char *v) {
 
 static void setenvd_int(const char *n, int v) {
   char buffer[64] = {0};
-  snprintf(buffer, sizeof buffer, "%d", v);
+  snprintf(buffer, sizeof buffer, " %d", v);
   setenvd(n, buffer);
 }
 
