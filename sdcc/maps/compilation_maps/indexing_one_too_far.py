@@ -1,10 +1,12 @@
+"""Feedback on compilation WARNING."""
+
 # flake8: noqa
 from socassess import userargs
 
 
 def fetch_fields() -> dict:
     """Extract fields from the compilation message for this feedback."""
-    content = (userargs.artifacts / 'compilation_error.txt').read_text()
+    content = (userargs.artifacts / 'compilation_warning.txt').read_text()
     lines = content.splitlines()
     return {
         "content": '\n'.join(['> ' + line for line in lines]),
@@ -13,13 +15,13 @@ def fetch_fields() -> dict:
 
 mappings = {
     frozenset([
-        'test_compile::test_it::failed',
-        'test_compile::test_flipped::passed',
-        'test_compile::test_reason[indexing_one_too_far]::passed',
+        'test_compile::test_no_warning::failed',
+        'test_compile::test_no_warning_flipped::passed',
+        'test_compile::test_reason_warning[indexing_one_too_far]::passed',
     ]): {
         'feedback': """
 
-Oops! There's a compilation issue.
+Oops! There's a compilation warning.
 
 {content}
 

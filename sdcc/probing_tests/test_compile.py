@@ -53,9 +53,37 @@ def test_compile_flipped(artifacts):
     (artifacts / 'compilation_error.txt').write_text(process.stderr)
 
 
+@pytest.mark.dependency(
+    name='test_no_warning',
+    depends=['test_compile'],
+    scope="session",
+)
+def test_no_warning():
+    """Test if compilation has NO warnings."""
+    process = gdict['compilation']['process']
+    assert process.returncode == 0
+    assert "warning:" not in process.stderr
+
+
+@pytest.mark.dependency(
+    name='test_no_warning_flipped',
+    depends=['test_compile'],
+    scope="session",
+)
+def test_no_warning_flipped(artifacts):
+    process = gdict['compilation']['process']
+    assert process.returncode == 0
+    assert "warning:" in process.stderr
+    (artifacts / 'compilation_warning.txt').write_text(process.stderr)
+
 
 @pytest.mark.parametrize("label, regex", diagnoser.params_error)
 def test_reason_error(label, regex):
     process = gdict['compilation']['process']
     assert re.search(regex, process.stderr, flags=re.I | re.DOTALL) is not None
 
+
+@pytest.mark.parametrize("label, regex", diagnoser.params_warning)
+def test_reason_warning(label, regex):
+    process = gdict['compilation']['process']
+    assert re.search(regex, process.stderr, flags=re.I | re.DOTALL) is not None

@@ -1,3 +1,5 @@
+"""Feedback on compilation ERROR."""
+
 # flake8: noqa
 from socassess import userargs
 
@@ -14,14 +16,14 @@ def fetch_fields() -> dict:
 
 mappings = {
     frozenset([
-        'test_compile::test_it::failed',
-        'test_compile::test_flipped::passed',
-        'test_compile::test_reason[missing_semicolon_line_before_assert]::passed',
+        'test_compile::test_compile::failed',
+        'test_compile::test_compile_flipped::passed',
+        'test_compile::test_reason_error[missing_semicolon_line_before_assert]::passed',
         'compilation.test_extract_context::test_missing_semicolon_line_before_assert::passed',
     ]): {
         'feedback': """
 
-Oops! There's a compilation issue.
+Oops! There's a compilation error.
 
 {content}
 

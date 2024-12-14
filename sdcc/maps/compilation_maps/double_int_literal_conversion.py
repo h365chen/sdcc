@@ -1,10 +1,12 @@
+"""Feedback on compilation WARNING."""
+
 # flake8: noqa
 from socassess import userargs
 
 
 def fetch_fields() -> dict:
     """Extract fields from the compilation message for this feedback."""
-    content = (userargs.artifacts / 'compilation_error.txt').read_text()
+    content = (userargs.artifacts / 'compilation_warning.txt').read_text()
     lines = content.splitlines()
     return {
         "content": '\n'.join(['> ' + line for line in lines]),
@@ -16,20 +18,19 @@ def fetch_fields() -> dict:
 
 mappings = {
     frozenset([
-        'test_compile::test_it::failed',
-        'test_compile::test_flipped::passed',
-        'test_compile::test_reason[double_int_literal_conversion]::passed',
+        'test_compile::test_no_warning::failed',
+        'test_compile::test_no_warning_flipped::passed',
+        'test_compile::test_reason_warning[double_int_literal_conversion]::passed',
         'compilation.test_extract_context::test_double_int_literal_conversion::passed',
     ]): {
         'feedback': """
 
-Oops! There's a compilation issue.
+Oops! There's a compilation warning.
 
 {content}
 
 You are assigning the floating point number {highlighted_word} to the int
-variable {underlined_word}, if this is what you want, change {highlighted_word}
-to {highlighted_word_truncated}
+variable {underlined_word}, if this is what you want, change {highlighted_word} to {highlighted_word_truncated}.
 
 Reproduce:
 

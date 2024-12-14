@@ -4,11 +4,26 @@
 
 import pytest
 
-params = [
+params_warning = [
     pytest.param(
         label, regex,
         marks=pytest.mark.dependency(
-            name=f"test_reason[{label}]",
+            name=f"test_reason_warning[{label}]",
+            depends=["test_no_warning_flipped"],
+            scope='session',
+        ),
+        id=label,
+    ) for label, regex in [
+        ("double_int_literal_conversion", r"implicit conversion from 'double' to 'int'"),
+        ("indexing_one_too_far", r"array index (\d+) is past the end of the array.*(which contains \1 element|\[\1\])"),
+    ]
+]
+
+params_error = [
+    pytest.param(
+        label, regex,
+        marks=pytest.mark.dependency(
+            name=f"test_reason_error[{label}]",
             depends=["test_compile_flipped"],
             scope='session',
         ),
@@ -20,7 +35,6 @@ params = [
         ("format_type_mismatch", r"format specifies type '[^:]+' but the argument has type '[^:]+'"),
         ("missing_semicolon_line_before_assert", r"called object type 'int' is not a function or function pointer"),
         ("assert_without_closing_parenthesis", r"unterminated function-like macro invocation"),
-        ("double_int_literal_conversion", r"implicit conversion from 'double' to 'int'"),
         ("assign_to_multidimensional_array", r"array type .*?\]\[.* is not assignable"),
         ("assign_to_array", r"array type .*?[^\]]\[(\d+)\]' is not assignable"),
         ("stack_use_after_return", r"address of stack memory associated with local variable '(.*?)' returned"),
@@ -42,7 +56,6 @@ params = [
         ("logical_equal_expressions", r"logical .?((and|or)).? of equal expressions"),
         ("declaration_shadows_a_local_variable", r"declaration shadows a local variable"),
         ("nonnull", r"argument (\d+) null where non-null expected"),
-        ("indexing_one_too_far", r"array index (\d+) is past the end of the array.*(which contains \1 element|\[\1\])"),
         ("array_subscript_is_not_an_integer", r"array subscript is not an integer"),
         ("continue_statement_not_in_loop", r"continue.* statement not in loop"),
         ("break_statement_not_in_loop", r"break.* statement not in loop"),

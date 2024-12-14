@@ -10,7 +10,7 @@ from . import gdict
 
 
 @pytest.mark.dependency(
-    depends=["test_reason[double_int_literal_conversion]"],
+    depends=["test_reason_warning[double_int_literal_conversion]"],
     scope="session",
 )
 def test_double_int_literal_conversion():
@@ -39,7 +39,7 @@ def test_double_int_literal_conversion():
 
 
 @pytest.mark.dependency(
-    depends=["test_reason[missing_semicolon_line_before_assert]"],
+    depends=["test_reason_error[missing_semicolon_line_before_assert]"],
     scope="session",
 )
 def test_missing_semicolon_line_before_assert():
