@@ -33,14 +33,13 @@ def test_clang_version_exists(clang_version):
     depends=['test_exist'],
     scope="session",
 )
-def test_it(clang_version, stu_answer_content, stu_answer, artifacts):
-    """Test compilation."""
+def test_compile(clang_version, stu_answer_content, stu_answer, artifacts):
+    """Test if no compilation error."""
     process = executor.run(
         clang_version, stu_answer_content, stu_answer, artifacts
     )
-    gdict['process'] = process
-    assert \
-        not process.stdout and process.returncode == 0
+    gdict['compilation'] |= {"process": process}
+    assert process.returncode == 0
 
 
 @pytest.mark.dependency(
@@ -48,14 +47,15 @@ def test_it(clang_version, stu_answer_content, stu_answer, artifacts):
     depends=['test_exist'],
     scope="session",
 )
-def test_flipped(artifacts):
-    process = gdict['process']
-    assert not \
-        (not process.stdout and process.returncode == 0)
-    (artifacts / 'compilation_error.txt').write_text(process.stdout)
+def test_compile_flipped(artifacts):
+    process = gdict['compilation']['process']
+    assert process.returncode != 0
+    (artifacts / 'compilation_error.txt').write_text(process.stderr)
 
 
-@pytest.mark.parametrize("label, regex", diagnoser.params)
-def test_reason(label, regex):
-    process = gdict['process']
-    assert re.search(regex, process.stdout, flags=re.I | re.DOTALL) is not None
+
+@pytest.mark.parametrize("label, regex", diagnoser.params_error)
+def test_reason_error(label, regex):
+    process = gdict['compilation']['process']
+    assert re.search(regex, process.stderr, flags=re.I | re.DOTALL) is not None
+

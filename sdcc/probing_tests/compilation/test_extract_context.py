@@ -14,8 +14,8 @@ from . import gdict
     scope="session",
 )
 def test_double_int_literal_conversion():
-    process = gdict['process']
-    content = process.stdout
+    process = gdict['compilation']['process']
+    content = process.stderr
     lines = content.splitlines()
     for prev_line, next_line in zip(lines[:-1], lines[1:]):
         if re.match(r"^[ ~\d|]*\^[ ~]*$", next_line):
@@ -43,8 +43,8 @@ def test_double_int_literal_conversion():
     scope="session",
 )
 def test_missing_semicolon_line_before_assert():
-    process = gdict['process']
-    content = process.stdout
+    process = gdict['compilation']['process']
+    content = process.stderr
     lines = content.splitlines()
     m = re.match(r"^(\S.*?):(\d+):", lines[0])
     if m:

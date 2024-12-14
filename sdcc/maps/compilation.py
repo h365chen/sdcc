@@ -6,8 +6,8 @@ from .compilation_maps import (double_int_literal_conversion,
 
 passed = {
     frozenset([
-        'test_compile::test_it::passed',
-        'test_compile::test_flipped::failed',
+        'test_compile::test_compile::passed',
+        'test_compile::test_compile_flipped::failed',
     ]): {
         'feedback': """
 

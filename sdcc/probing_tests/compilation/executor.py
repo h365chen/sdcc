@@ -17,23 +17,38 @@ def run(clang_version, stu_answer_content, stu_answer, artifacts):
     -O0
     -g
     -gdwarf-4
+
     -Wall
-    -Wno-unused -Wunused-variable -Wunused-value
-    -Wno-unused-result -Wshadow -Wunused-comparison
-    -Wno-unused-parameter -Wno-return-type
-    -fno-omit-frame-pointer -fno-common
-    -funwind-tables -fno-optimize-sibling-calls
-    -fcolor-diagnostics -fdiagnostics-color
+    -Wshadow
+
+    -Wunused-variable
+    -Wunused-value
+    -Wunused-comparison
+
+    -Wno-unused
+    -Wno-unused-result
+    -Wno-unused-parameter
+    -Wno-return-type
+
+    -fno-common
+    -fno-omit-frame-pointer
+    -fno-color-diagnostics
+    -fno-optimize-sibling-calls
+
+    -funwind-tables
+
     -Qunused-arguments
+
     -o {target}
     {stu_answer}
+
     -lm
     """.split()  # noqa
     print("compile command: ", " ".join(cmd))
     process = subprocess.run(
         cmd,
-        input="",
         text=True,
         check=False,
+        capture_output=True,
     )
     return process
