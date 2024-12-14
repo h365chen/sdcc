@@ -39,7 +39,7 @@ def test_it(artifacts, capfd):
     cmd = f"""
     lldb
     --
-    ./{exe}
+    {exe}
     """.split()
     with subprocess.Popen(cmd,
                           stdin=subprocess.PIPE,

@@ -13,9 +13,9 @@ Nice! I found your solution!
 
 ## compilation
 
-Oops! There's a compilation issue.
+Oops! There's a compilation error.
 
-> /private/var/folders/__/mwshqy7j2zx96dpf5b1k9cn80000gn/T/pytest-of-huanyi/pytest-2/test_match_missing_semicolon_l0/stu/student.c:5:5: error: called object type 'int' is not a function or function pointer
+> /private/var/folders/wk/dq6crxqs62338j1lkx160z980000gn/T/pytest-of-huanyi/pytest-6/test_match_missing_semicolon_l0/stu/student.c:5:5: error: called object type 'int' is not a function or function pointer
 >     4 |     int i = 10
 >       |             ~~
 >     5 |     assert(i == 10);
@@ -26,7 +26,7 @@ Oops! There's a compilation issue.
 > 1 error generated.
 
 There is probably a syntax error such as missing semi-colon on line
-4 of /private/var/folders/__/mwshqy7j2zx96dpf5b1k9cn80000gn/T/pytest-of-huanyi/pytest-2/test_match_missing_semicolon_l0/stu/student.c or an earlier line
+4 of /private/var/folders/wk/dq6crxqs62338j1lkx160z980000gn/T/pytest-of-huanyi/pytest-6/test_match_missing_semicolon_l0/stu/student.c or an earlier line
 
 Reproduce:
 
@@ -38,6 +38,10 @@ int main(void) {
     assert(i == 10);
 }
 \```
+
+## runtime
+
+runtime: automated feedback is not available
 
 
 ```
